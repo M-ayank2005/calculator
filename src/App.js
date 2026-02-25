@@ -209,6 +209,66 @@ function fmt(n) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  MATH BACKGROUND  –  WhatsApp-style repeating tile of math symbols
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BG_SYMBOLS = [
+  // Row 1  (y 40–70)
+  { s: '∑',  x: 30,  y: 55,  r: -20, fs: 24 },
+  { s: '∫',  x: 135, y: 35,  r: 15,  fs: 20 },
+  { s: 'π',  x: 230, y: 65,  r: -10, fs: 22 },
+  { s: '√',  x: 345, y: 42,  r: 25,  fs: 18 },
+  { s: '±',  x: 455, y: 68,  r: -15, fs: 20 },
+  // Row 2  (y 120–155)
+  { s: '∞',  x: 78,  y: 142, r: 10,  fs: 22 },
+  { s: 'θ',  x: 185, y: 122, r: -15, fs: 18 },
+  { s: 'Δ',  x: 295, y: 152, r: 20,  fs: 26 },
+  { s: 'α',  x: 408, y: 130, r: -25, fs: 18 },
+  { s: 'x²', x: 480, y: 148, r: 5,   fs: 16 },
+  // Row 3  (y 210–248)
+  { s: 'β',  x: 40,  y: 235, r: 15,  fs: 20 },
+  { s: '≈',  x: 163, y: 212, r: -20, fs: 18 },
+  { s: '∂',  x: 272, y: 244, r: 10,  fs: 24 },
+  { s: '∇',  x: 382, y: 220, r: -15, fs: 20 },
+  { s: 'λ',  x: 472, y: 240, r: 25,  fs: 22 },
+  // Row 4  (y 300–335)
+  { s: 'γ',  x: 22,  y: 315, r: -30, fs: 18 },
+  { s: 'σ',  x: 90,  y: 322, r: -10, fs: 18 },
+  { s: 'φ',  x: 212, y: 305, r: 20,  fs: 22 },
+  { s: 'ω',  x: 332, y: 332, r: -20, fs: 20 },
+  { s: '∈',  x: 442, y: 310, r: 15,  fs: 24 },
+  // Row 5  (y 390–428)
+  { s: 'μ',  x: 62,  y: 415, r: 10,  fs: 20 },
+  { s: '÷',  x: 182, y: 395, r: -15, fs: 22 },
+  { s: 'ln', x: 300, y: 422, r: 15,  fs: 18 },
+  { s: '∀',  x: 418, y: 400, r: -10, fs: 22 },
+  { s: '≠',  x: 492, y: 425, r: 20,  fs: 18 },
+  // Row 6  (y 460–490)
+  { s: '∫',  x: 118, y: 472, r: -25, fs: 18 },
+  { s: 'Σ',  x: 252, y: 485, r: 15,  fs: 20 },
+  { s: '⊕',  x: 372, y: 468, r: -20, fs: 16 },
+  { s: '∃',  x: 462, y: 482, r: 10,  fs: 18 },
+];
+
+function buildBgStyle(dark) {
+  const fill = dark ? '#8b9eb8' : '#4a5568';
+  const texts = BG_SYMBOLS.map(({ s, x, y, r, fs }) =>
+    `<text x="${x}" y="${y}" font-size="${fs}" fill="${fill}" opacity="0.09" ` +
+    `text-anchor="middle" transform="rotate(${r} ${x} ${y})">${s}</text>`
+  ).join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">${texts}</svg>`;
+  return {
+    backgroundColor: dark ? '#0f172a' : '#dbeafe',
+    backgroundImage: `url('data:image/svg+xml,${encodeURIComponent(svg)}')`,
+    backgroundRepeat: 'repeat',
+    backgroundSize: '500px 500px',
+  };
+}
+
+const LIGHT_BG_STYLE = buildBgStyle(false);
+const DARK_BG_STYLE  = buildBgStyle(true);
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  APP COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -333,7 +393,6 @@ export default function App() {
 
   // ── Style helpers (dark / light) ──────────────────────────────────────────
 
-  const bg     = dark ? 'bg-gray-900'  : 'bg-gradient-to-br from-slate-100 to-blue-100';
   const card   = dark ? 'bg-gray-800'  : 'bg-white';
   const hdr    = dark ? 'bg-gray-700'  : 'bg-gray-50 border-b border-gray-200';
   const dimTxt = dark ? 'text-gray-400' : 'text-gray-500';
@@ -392,9 +451,9 @@ export default function App() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${bg}`}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={dark ? DARK_BG_STYLE : LIGHT_BG_STYLE}>
       <div
-        className={`w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden ${card}`}
+        className={`relative z-10 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden ${card}`}
         role="application"
         aria-label="Scientific Calculator"
       >
